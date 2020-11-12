@@ -16,12 +16,6 @@ class HomeView extends StatelessWidget {
 
   final String title;
 
-/*  @override
-  _HomeViewState createState() => _HomeViewState();
-}
-
-class _HomeViewState extends State<HomeView> {*/
-  //List<Map<String, dynamic>> data;
   final initDb = InitDb.instance;
   final dbExpense = ExpenseDbModel.instance;
 

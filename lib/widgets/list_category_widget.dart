@@ -5,18 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ListCategory extends StatefulWidget {
-  @override
-  _ListCategoryState createState() => _ListCategoryState();
-}
-
-class _ListCategoryState extends State<ListCategory> {
-  List<Map<String, dynamic>> data;
+class ListCategory extends StatelessWidget {
   final dbCat = CategoryDbModel.instance;
-
-  void initState() {
-    super.initState();
-  }
 
   void _delete(int _id) async {
     // Assuming that the number of rows is the id for the last row.

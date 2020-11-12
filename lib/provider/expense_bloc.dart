@@ -22,8 +22,7 @@ class ExpenseBloc extends ChangeNotifier {
   }
 
   Future<List<ExpenseModel>> fetchData() async {
-    final prin = await initDb.initdb();
-    //print(prin);
+
     final allRows = await dbExpense.queryAllRows();
     //List data = List<Map<String,dynamic>>.from(allRows);
     List<ExpenseModel> data = List<ExpenseModel>.from(allRows.map((e) => ExpenseModel.fromJson(e)));
@@ -36,10 +35,12 @@ class ExpenseBloc extends ChangeNotifier {
   }
 
   Future<int> calculate() async {
+    final prin = await initDb.initdb();
+    print(prin);
     final _expense = await dbExpense.sum('expense') ?? 0;
     final _income = await dbExpense.sum('income') ?? 0;
-
     balance = _income - _expense;
     return balance;
   }
+
 }
