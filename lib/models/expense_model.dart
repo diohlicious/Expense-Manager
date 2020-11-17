@@ -13,6 +13,7 @@ class ExpenseModel {
   int amt;
   String description;
   String type;
+  String createDate;
 
   ExpenseModel(
       {this.id,
@@ -20,7 +21,8 @@ class ExpenseModel {
       this.category,
       this.amt,
       this.description,
-      this.type});
+      this.type,
+      this.createDate});
 
   factory ExpenseModel.fromJson(Map<String, dynamic> json) => ExpenseModel(
         id: json["_id"],
@@ -29,6 +31,7 @@ class ExpenseModel {
         amt: json["_amt"],
         description: json["_description"],
         type: json["_type"],
+        createDate: json["_createDate"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -38,5 +41,6 @@ class ExpenseModel {
         "_amt": amt,
         "_description": description,
         "_type": type,
+        "_createdDate": createDate,
       };
 }

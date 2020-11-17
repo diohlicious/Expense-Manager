@@ -1,8 +1,10 @@
 import 'package:expense_manager/models/expense_db_model.dart';
+import 'package:expense_manager/provider/expense_bloc.dart';
 import 'package:expense_manager/views/category_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class FormWidget extends StatefulWidget {
   const FormWidget({this.data, this.type});
@@ -35,13 +37,14 @@ class _FormWidgetState extends State<FormWidget> {
     super.dispose();
   }
 
-  void _insert(String _dateStr, String _catStr, String _amtStr, String _descStr, String _typeStr ) async {
+  void _insert(String _dateStr, String _catStr, String _amtStr, String _descStr, String _typeStr, String _createStr ) async {
     // row to insert
     Map<String, dynamic> row = {ExpenseDbModel.columnTransDate: _dateStr,
       ExpenseDbModel.columnCategory: _catStr,
       ExpenseDbModel.columnAmount: _amtStr,
       ExpenseDbModel.columnDescription: _descStr,
-      ExpenseDbModel.columnType: _typeStr,};
+      ExpenseDbModel.columnType: _typeStr,
+      ExpenseDbModel.columnCreateDate: _createStr,};
     final id = await dbExpense.insert(row);
     print('inserted row id: $id');
   }
@@ -53,8 +56,11 @@ class _FormWidgetState extends State<FormWidget> {
       _txtAmt.text.isEmpty ? _validate = true : _validate = false;
       _txtDesc.text.isEmpty ? _validate = true : _validate = false;
     });
+    DateTime _dateTime= new DateTime.now();
     if (!_validate){
-      _insert(storedDate,_txtCat.text,_txtAmt.text,_txtDesc.text,widget.type);
+      _insert(storedDate,_txtCat.text,_txtAmt.text,_txtDesc.text,widget.type,_dateTime.toIso8601String());
+      //final ExpenseBloc expenseBloc = Provider.of<ExpenseBloc>(context, listen: false);
+      //expenseBloc.fetchWidget();
       return Navigator.pop(context, 'true');
     }
   }

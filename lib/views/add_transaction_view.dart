@@ -1,23 +1,27 @@
 
+import 'package:expense_manager/provider/expense_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'expense_form_view.dart';
 import 'income_form_view.dart';
 
-class AddTransactionView extends StatefulWidget {
+class AddTransactionView extends StatelessWidget {
   static const String routeName = '/addTransaction';
 
   final List data;
   AddTransactionView({Key key, this.data}) : super(key: key);
 
-  @override
+/*  @override
   _AddTransactionViewState createState() => _AddTransactionViewState();
 }
 
-class _AddTransactionViewState extends State<AddTransactionView> {
+class _AddTransactionViewState extends State<AddTransactionView> {*/
 
   @override
   Widget build(BuildContext context) {
+    final ExpenseBloc expenseBloc = Provider.of<ExpenseBloc>(context, listen: false);
+    expenseBloc.fetchWidget();
     return Scaffold(
       appBar: AppBar(title: Text('Create Transaction')),
       body: DefaultTabController(

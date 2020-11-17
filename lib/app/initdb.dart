@@ -17,6 +17,7 @@ class InitDb {
   static final columnAmount = '_amt';
   static final columnDescription = '_description';
   static final columnType = '_type';
+  static final columnCreateDate = '_createDate';
 
   static final columnIdCat = '_idCategory';
   static final columnCat = '_category';
@@ -53,7 +54,8 @@ class InitDb {
             $columnCategory TEXT NOT NULL,
             $columnAmount INTEGER NOT NULL,
             $columnDescription TEXT NOT NULL,
-            $columnType TEXT NOT NULL
+            $columnType TEXT NOT NULL,
+            $columnCreateDate TEXT NOT NULL
           )
           ''');
   }

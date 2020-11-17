@@ -1,13 +1,14 @@
-
-import 'package:expense_manager/app/initdb.dart';
-import 'package:expense_manager/models/expense_db_model.dart';
+import 'package:animations/animations.dart';
 import 'package:expense_manager/models/expense_model.dart';
 import 'package:expense_manager/provider/expense_bloc.dart';
 import 'package:expense_manager/repositories/function.dart';
+import 'package:dynamic_widget/dynamic_widget.dart';
 import 'package:expense_manager/views/add_transaction_view.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+const double _fabDimension = 56.0;
 
 class HomeView extends StatelessWidget {
   static const String routeName = '/home';
@@ -16,51 +17,86 @@ class HomeView extends StatelessWidget {
 
   final String title;
 
-  final initDb = InitDb.instance;
-  final dbExpense = ExpenseDbModel.instance;
+  /*void _addTransaction() async {
+    FocusScope.of(context).requestFocus(new FocusNode());
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoryView(),
+      ),
+    );
+    if('$result'!='null')
+      setState(() {
+        _txtCat.text = '$result';
+      });
+  }*/
 
   @override
   Widget build(BuildContext context) {
-    final ExpenseBloc expenseBloc = Provider.of<ExpenseBloc>(context);
-    expenseBloc.calculate();
-    final int _balance = expenseBloc.balance;
+    ContainerTransitionType _transitionType = ContainerTransitionType.fade;
+    final ExpenseBloc expenseBloc =
+        Provider.of<ExpenseBloc>(context, listen: false);
+    expenseBloc.fetchWidget();
+    //final String jsonString = expenseBloc.jsonString;
+    //print('ok'+expenseBloc.jsonString) ;
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
-      body: expenseBloc.balance == null
-        ? Center(
-        child: CircularProgressIndicator(),
-    )
-        : Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Card(
-              margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
-              child: Container(
-                alignment: Alignment.center,
-                child: Text(
-                  'Balance Rp: ' + _balance.toString(), //_balance.toString(),
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
+      body: Selector<ExpenseBloc, String>(
+          selector: (_, fetchWidget) => fetchWidget.jsonString,
+          builder: (_, jsonString, __) {
+            return Container(
+              child: jsonString == null
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : FutureBuilder<Widget>(
+                      future: homeWidget(context, jsonString),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Widget> snapshot) {
+                        if (snapshot.hasError) {
+                          print(snapshot.error);
+                        }
+                        return snapshot.hasData
+                            ? SizedBox.expand(
+                                child: snapshot.data,
+                              )
+                            : Text("Loading...");
+                      },
+                    ),
+            );
+          }),
+      //HomeWidget(),
+      floatingActionButton: OpenContainer(
+        transitionType: _transitionType,
+        openBuilder: (BuildContext context, VoidCallback _) {
+          return AddTransactionView();
+        },
+        closedElevation: 6.0,
+        closedShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(_fabDimension / 2),
+          ),
+        ),
+        closedColor: Theme.of(context).colorScheme.secondary,
+        transitionDuration: Duration(milliseconds: 800),
+        closedBuilder: (BuildContext context, VoidCallback _) {
+          return SizedBox(
+            height: _fabDimension,
+            width: _fabDimension,
+            child: Center(
+              child: Icon(
+                Icons.add,
+                color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
-          ),
-          Expanded(
-            flex: 7,
-            child: //listView,
-                HomeListWidget(),
-          ),
-        ],
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
+      /*FloatingActionButton(
         onPressed: //_insertExpense,
-        () {
+            () {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -70,13 +106,42 @@ class HomeView extends StatelessWidget {
         },
         tooltip: 'Add Expense',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),*/ // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Future<Widget> homeWidget(BuildContext context, String jsonString) async {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Expanded(
+          flex: 1,
+          child: Card(
+            margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+            child: Container(
+              alignment: Alignment.center,
+              child: DynamicWidgetBuilder.build(
+                  jsonString, context, DefaultClickListener()),
+              /*Text(_jsonWidget.toString(), //_balance.toString(),
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+            ),*/
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 7,
+          child: //listView,
+              HomeListWidget(),
+        ),
+      ],
     );
   }
 }
 
 class HomeListWidget extends StatelessWidget {
-
   _expenseIcon(String _typeStr) {
     if (FunctionRepo.equalsIgnoreCase(_typeStr, 'expense')) {
       return Icon(
@@ -103,61 +168,80 @@ class HomeListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ExpenseBloc expenseBloc = Provider.of<ExpenseBloc>(context);
+    final ExpenseBloc expenseBloc =
+    Provider.of<ExpenseBloc>(context, listen: false);
     expenseBloc.fetchData();
-    return expenseBloc.listExpense == null
-        ? Center(
-      child: CircularProgressIndicator(),
-    )
-        : ListView.builder(
-        itemCount: expenseBloc.listExpense.length,
-        itemBuilder: (BuildContext context, int index) {
-          final ExpenseModel data = expenseBloc.listExpense[index];
-          return Card(
-              margin: EdgeInsets.fromLTRB(5, 1, 5, 5),
-              child: Container(
-                  padding: EdgeInsets.fromLTRB(3, 10, 3, 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: _expenseIcon(data.type),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Column(
+    return Selector<ExpenseBloc, List<ExpenseModel>>(
+      selector: (_, fetchWidget) => fetchWidget.listExpense,
+      builder: (_, listExpense, __) {
+        return Container(
+          child: expenseBloc.listExpense == null
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : ListView.builder(
+                  itemCount: expenseBloc.listExpense.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final ExpenseModel data = expenseBloc.listExpense[index];
+                    return Card(
+                      margin: EdgeInsets.fromLTRB(5, 1, 5, 5),
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(3, 10, 3, 10),
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'RP ' + data.amt.toString(),
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 18),
+                            Expanded(
+                              flex: 2,
+                              child: _expenseIcon(data.type),
                             ),
-                            Text(
-                              data.category,
-                              style: TextStyle(
-                                  color: Colors.grey[700], fontSize: 15),
+                            Expanded(
+                              flex: 5,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'RP ' + data.amt.toString(),
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 18),
+                                  ),
+                                  Text(
+                                    data.category,
+                                    style: TextStyle(
+                                        color: Colors.grey[700], fontSize: 15),
+                                  ),
+                                  Text(
+                                    data.description,
+                                    style: TextStyle(
+                                        color: Colors.grey[700], fontSize: 15),
+                                  ),
+                                ],
+                              ),
                             ),
-                            Text(
-                              data.description,
-                              style: TextStyle(
-                                  color: Colors.grey[700], fontSize: 15),
-                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                height: 50,
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  _transDate(data.transDate),
+                                  //Text(data[index]['_transDate']),
+                                ),
+                              ),
+                            )
                           ],
                         ),
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.topLeft,
-                          child: Text(_transDate(data.transDate),
-                            //Text(data[index]['_transDate']),
-                        ),
-                      ),
-                      )],
-                  )));
-        });
+                    );
+                  }),
+        );
+      },
+    );
+  }
+}
+
+class DefaultClickListener implements ClickListener {
+  @override
+  void onClicked(String event) {
+    print("Receive click event: " + event);
   }
 }

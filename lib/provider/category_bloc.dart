@@ -17,7 +17,7 @@ class CategoryBloc extends ChangeNotifier {
     final allRows = await dbCat.queryAllRows();
      List<CategoryModel> data = List<CategoryModel>.from(allRows.map((e) => CategoryModel.fromJson(e)));
      listCategory = data;
-     //print(listCategory.toString());
+     print(listCategory.toString());
      return listCategory;
   }
   //-------------------------------------------------------------insert data
@@ -34,9 +34,4 @@ class CategoryBloc extends ChangeNotifier {
     final id = await dbCat.insert(row);
     print('inserted row id: $id');
   }
-
-
-
-
-
 }

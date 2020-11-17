@@ -17,6 +17,7 @@ class ExpenseDbModel {
   static final columnAmount = '_amt';
   static final columnDescription = '_description';
   static final columnType = '_type';
+  static final columnCreateDate = '_createDate';
 
 
   // make this a singleton class
