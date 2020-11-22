@@ -75,6 +75,7 @@ class ListCategory extends StatelessWidget {
       selector: (_, fetchData) => fetchData.listCategory,
       builder: (_, listCategory, __) {
         return Container(
+          margin: EdgeInsets.fromLTRB(0, 0, 0, 70),
           child: categoryBloc.listCategory == null
               ? Center(
                   child: CircularProgressIndicator(),

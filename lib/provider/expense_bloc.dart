@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:expense_manager/app/ad_manager.dart';
 import 'package:expense_manager/app/initdb.dart';
 import 'package:expense_manager/models/expense_db_model.dart';
 import 'package:expense_manager/models/expense_model.dart';
@@ -80,8 +81,9 @@ class ExpenseBloc extends ChangeNotifier {
     // TODO: Initialize AdMob SDK
     //AdManager.appId
     if(FunctionRepo.equalsIgnoreCase(string, 'large')){
-      FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
+      //FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
       homeBanner = BannerAd(
+          //adUnitId: BannerAd.testAdUnitId,
           adUnitId: BannerAd.testAdUnitId,
           size: AdSize.largeBanner,
           listener: (MobileAdEvent event) {
@@ -93,8 +95,10 @@ class ExpenseBloc extends ChangeNotifier {
             }
           });
     } else if (FunctionRepo.equalsIgnoreCase(string, 'small')){
+      FirebaseAdMob.instance.initialize(appId: AdManager.appId);
       homeBanner = BannerAd(
-          adUnitId: BannerAd.testAdUnitId,
+          adUnitId: AdManager.bannerAdUnitId,
+          //adUnitId: BannerAd.testAdUnitId,
           size: AdSize.banner,
           listener: (MobileAdEvent event) {
             if (event == MobileAdEvent.loaded) {
