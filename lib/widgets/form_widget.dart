@@ -1,6 +1,7 @@
 import 'package:expense_manager/models/expense_db_model.dart';
 import 'package:expense_manager/provider/expense_bloc.dart';
 import 'package:expense_manager/views/category_view.dart';
+import 'package:expense_manager/views/home_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -31,37 +32,49 @@ class _FormWidgetState extends State<FormWidget> {
   void initState() {
     super.initState();
   }
+
   @override
   void dispose() {
     this._validation();
     super.dispose();
   }
 
-  void _insert(String _dateStr, String _catStr, String _amtStr, String _descStr, String _typeStr, String _createStr ) async {
+  void _insert(String _dateStr, String _catStr, String _amtStr, String _descStr,
+      String _typeStr, String _createStr) async {
     // row to insert
-    Map<String, dynamic> row = {ExpenseDbModel.columnTransDate: _dateStr,
+    Map<String, dynamic> row = {
+      ExpenseDbModel.columnTransDate: _dateStr,
       ExpenseDbModel.columnCategory: _catStr,
       ExpenseDbModel.columnAmount: _amtStr,
       ExpenseDbModel.columnDescription: _descStr,
       ExpenseDbModel.columnType: _typeStr,
-      ExpenseDbModel.columnCreateDate: _createStr,};
+      ExpenseDbModel.columnCreateDate: _createStr,
+    };
     final id = await dbExpense.insert(row);
     print('inserted row id: $id');
   }
 
-  void _validation(){
+  void _validation() {
     setState(() {
       _txtDate.text.isEmpty ? _validate = true : _validate = false;
       _txtCat.text.isEmpty ? _validate = true : _validate = false;
       _txtAmt.text.isEmpty ? _validate = true : _validate = false;
       _txtDesc.text.isEmpty ? _validate = true : _validate = false;
     });
-    DateTime _dateTime= new DateTime.now();
-    if (!_validate){
-      _insert(storedDate,_txtCat.text,_txtAmt.text,_txtDesc.text,widget.type,_dateTime.toIso8601String());
+    DateTime _dateTime = new DateTime.now();
+    if (!_validate) {
+      _insert(storedDate, _txtCat.text, _txtAmt.text, _txtDesc.text,
+          widget.type, _dateTime.toIso8601String());
       //final ExpenseBloc expenseBloc = Provider.of<ExpenseBloc>(context, listen: false);
       //expenseBloc.fetchWidget();
-      return Navigator.pop(context, 'true');
+      //return Navigator.pop(context);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeView(title: 'Expense Manager'),
+        ),
+      );
     }
   }
 
@@ -89,10 +102,10 @@ class _FormWidgetState extends State<FormWidget> {
         builder: (context) => CategoryView(),
       ),
     );
-    if('$result'!='null')
-    setState(() {
-      _txtCat.text = '$result';
-    });
+    if ('$result' != 'null')
+      setState(() {
+        _txtCat.text = '$result';
+      });
   }
 
   @override
@@ -104,49 +117,61 @@ class _FormWidgetState extends State<FormWidget> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(
-                height: 3,
-              ),
-              TextFormField(
-                controller: _txtDate,
-                decoration: InputDecoration(
+              Container(
+                height: 80,
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                child: TextFormField(
+                  controller: _txtDate,
+                  decoration: InputDecoration(
                     labelText: 'Transaction Date',
                     border: OutlineInputBorder(),
-                  errorText: _validate ? 'Value Can\'t Be Empty' : null,),
-                onTap: _selectDate,
+                    errorText: _validate ? 'Value Can\'t Be Empty' : null,
+                  ),
+                  onTap: _selectDate,
+                ),
               ),
-              SizedBox(
-                height: 25,
+
+              Container(
+                height: 80,
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                child:TextFormField(
+                  controller: _txtCat,
+                  decoration: InputDecoration(
+                    labelText: 'Select Category',
+                    border: OutlineInputBorder(),
+                    errorText: _validate ? 'Value Can\'t Be Empty' : null,
+                  ),
+                  onTap: _selectCategory,
+                ),
               ),
-              TextFormField(
-                controller: _txtCat,
-                decoration: InputDecoration(
-                    labelText: 'Select Category', border: OutlineInputBorder(),
-                  errorText: _validate ? 'Value Can\'t Be Empty' : null,),
-                onTap: _selectCategory,
+
+              Container(
+                height: 80,
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                child:TextFormField(
+                  controller: _txtAmt,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Amount',
+                    border: OutlineInputBorder(),
+                    errorText: _validate ? 'Value Can\'t Be Empty' : null,
+                  ),
+                ),
               ),
-              SizedBox(
-                height: 25,
+
+              Container(
+                height: 80,
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
+                child: TextFormField(
+                  controller: _txtDesc,
+                  decoration: InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                    errorText: _validate ? 'Value Can\'t Be Empty' : null,
+                  ),
+                ),
               ),
-              TextFormField(
-                controller: _txtAmt,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                    labelText: 'Amount', border: OutlineInputBorder(),
-                  errorText: _validate ? 'Value Can\'t Be Empty' : null,),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              TextFormField(
-                controller: _txtDesc,
-                decoration: InputDecoration(
-                    labelText: 'Description', border: OutlineInputBorder(),
-                  errorText: _validate ? 'Value Can\'t Be Empty' : null,),
-              ),
-              SizedBox(
-                height: 25,
-              ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

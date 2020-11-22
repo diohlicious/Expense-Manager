@@ -20,8 +20,16 @@ class _AddTransactionViewState extends State<AddTransactionView> {*/
 
   @override
   Widget build(BuildContext context) {
-    final ExpenseBloc expenseBloc = Provider.of<ExpenseBloc>(context, listen: false);
-    expenseBloc.fetchWidget();
+    /*final ExpenseBloc expenseBloc = Provider.of<ExpenseBloc>(context, listen: false);
+    expenseBloc.buildBannerAd(MediaQuery.of(context).size.height * 0.15, 'small');
+    expenseBloc.homeBanner..load();*/
+    //expenseBloc.disposer();
+   /* try {
+            expenseBloc.homeBanner..dispose();
+            homeBanner = null;
+          } catch (ex) {
+            print("banner dispose error");
+          }*/
     return Scaffold(
       appBar: AppBar(title: Text('Create Transaction')),
       body: DefaultTabController(

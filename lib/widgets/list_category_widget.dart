@@ -71,38 +71,51 @@ class ListCategory extends StatelessWidget {
   Widget build(BuildContext context) {
     final CategoryBloc categoryBloc = Provider.of<CategoryBloc>(context);
     categoryBloc.fetchData();
-    return ListView.builder(
-        itemCount: categoryBloc.listCategory.length,
-        itemBuilder: (BuildContext context, int index) {
-          final CategoryModel data = categoryBloc.listCategory[index];
-          return Card(
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pop(context, data.category);
-              },
-              child: Container(
-                padding: EdgeInsets.all(18),
-                child: Row(children: [
-                  Expanded(
-                    flex: 7,
-                    child: Text(
-                      data.category,
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: GestureDetector(
-                      child: Icon(CupertinoIcons.trash),
-                      onTap: () {
-                        _deleteCategoryDialog(context, data.idCategory);
-                      },
-                    ),
-                  ),
-                ]),
-              ),
-            ),
-          );
-        });
+    return Selector<CategoryBloc, List<CategoryModel>>(
+      selector: (_, fetchData) => fetchData.listCategory,
+      builder: (_, listCategory, __) {
+        return Container(
+          child: categoryBloc.listCategory == null
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : ListView.builder(
+                  itemCount: categoryBloc.listCategory.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final CategoryModel data = categoryBloc.listCategory[index];
+                    return Card(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context, data.category);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(18),
+                          child: Row(children: [
+                            Expanded(
+                              flex: 7,
+                              child: Text(
+                                data.category,
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: GestureDetector(
+                                child: Icon(CupertinoIcons.trash),
+                                onTap: () {
+                                  _deleteCategoryDialog(
+                                      context, data.idCategory);
+                                },
+                              ),
+                            ),
+                          ]),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        );
+      },
+    );
   }
 }

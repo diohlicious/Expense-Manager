@@ -61,6 +61,9 @@ class CategoryView extends StatelessWidget {
     if('$result' != 'false'){
       //_insert('$result');
       CategoryBloc().insert('$result');
+      /*final CategoryBloc categoryBloc =
+      Provider.of<CategoryBloc>(context, listen: false);
+      categoryBloc.fetchData();*/
     }
   }
 
@@ -82,6 +85,7 @@ class CategoryView extends StatelessWidget {
           tooltip: 'Add Category',
           child: Icon(Icons.add),
         ),
+        bottomSheet: Padding(padding: EdgeInsets.only(bottom: 100.0)),
       ),
     );
   }

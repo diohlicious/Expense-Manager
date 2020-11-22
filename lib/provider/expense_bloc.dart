@@ -4,6 +4,9 @@ import 'package:expense_manager/app/initdb.dart';
 import 'package:expense_manager/models/expense_db_model.dart';
 import 'package:expense_manager/models/expense_model.dart';
 import 'package:expense_manager/network/network_endpoints.dart';
+import 'package:expense_manager/repositories/function.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -25,6 +28,13 @@ class ExpenseBloc extends ChangeNotifier {
     notifyListeners();
   }
 
+  BannerAd _homeBanner;
+  BannerAd get homeBanner => _homeBanner;
+  set homeBanner(BannerAd val){
+    _homeBanner =val;
+    notifyListeners();
+  }
+
   Future<String> fetchWidget() async {
     final prin = await initDb.initdb();
     print(prin);
@@ -34,7 +44,7 @@ class ExpenseBloc extends ChangeNotifier {
     String balance = 'Balance: Rp. ' + amt.toString();
 
     var result = await http.get(NetworkEndpoints.BASE_URL + '/dynamictext');
-    List dynWidget = json.decode(result.body);
+    List dynWidget = await json.decode(result.body);
     Map<String, dynamic> _style = new Map();
     _style.addAll({
       'color': dynWidget[0]['color'],
@@ -63,7 +73,36 @@ class ExpenseBloc extends ChangeNotifier {
       return b.createDate.compareTo(a.createDate);
     });
     listExpense = data;
-    print(listExpense[0].transDate);
     return listExpense;
+  }
+
+  Future<void> buildBannerAd(double mediaQuery, String string) async{
+    // TODO: Initialize AdMob SDK
+    //AdManager.appId
+    if(FunctionRepo.equalsIgnoreCase(string, 'large')){
+      FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
+      homeBanner = BannerAd(
+          adUnitId: BannerAd.testAdUnitId,
+          size: AdSize.largeBanner,
+          listener: (MobileAdEvent event) {
+            if (event == MobileAdEvent.loaded) {
+              homeBanner
+                ..show(
+                    anchorType: AnchorType.top,
+                    anchorOffset: mediaQuery);//MediaQuery.of(context).size.height * 0.15);
+            }
+          });
+    } else if (FunctionRepo.equalsIgnoreCase(string, 'small')){
+      homeBanner = BannerAd(
+          adUnitId: BannerAd.testAdUnitId,
+          size: AdSize.banner,
+          listener: (MobileAdEvent event) {
+            if (event == MobileAdEvent.loaded) {
+              homeBanner..show();
+            }
+          });
+    }
+
+    return homeBanner;
   }
 }
